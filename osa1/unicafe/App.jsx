@@ -1,21 +1,17 @@
 import { useState } from 'react'
 
 const Statistics = (props) => {
-  const total = props.good + props.neutral + props.bad
-  const average = total === 0 ? 0 : (props.good - props.bad) / total
-  const positivePercentage = total === 0 ? 0 : (props.good / total) * 100
-
-  
+  const { good, neutral, bad, total, average, posPercentage } = props
 
   return (
     <div>
       <h2>Palautteet</h2>
-      <p>Hyvä: {props.good}</p>
-      <p>Neutraali: {props.neutral}</p>
-      <p>Huono: {props.bad}</p>
+      <p>Hyvä: {good}</p>
+      <p>Neutraali: {neutral}</p>
+      <p>Huono: {bad}</p>
       <p>Kaikki: {total}</p>
       <p>Keskiarvo: {average}</p>
-      <p>Positiivisia: {positivePercentage}%</p>
+      <p>Positiivisia: {posPercentage}%</p>
     </div>
   )
 }
@@ -24,6 +20,10 @@ const App = () => {
   const [good, setGood] = useState(0)
   const [neutral, setNeutral] = useState(0)
   const [bad, setBad] = useState(0)
+
+  const [total, setTotal] = useState(0)
+  const average = total === 0 ? 0 : (good - bad) / total
+  const posPercentage = total === 0 ? 0 : (good / total ) * 100
 
   const handleGood = () => {
     const updatedGood = good + 1
@@ -51,7 +51,8 @@ const App = () => {
         <button onClick={handleNeutral}>Neutraali</button>
         <button onClick={handleBad}>Huono</button>
       </div>
-    <Statistics good={good} neutral={neutral} bad={bad} />
+      <Statistics good={good} neutral={neutral} bad={bad}
+        total={total} average={average} posPercentage={posPercentage}/>
     </div>
   )
 }
