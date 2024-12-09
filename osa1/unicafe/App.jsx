@@ -6,9 +6,10 @@ const Button = ({ handleClick, text }) => {
 
 const StatisticLine = ({ text, value }) => {
   return (
-    <p>
-      {text}: {value}
-    </p>
+    <tr>
+      <td>{text}</td>
+      <td>{value}</td>
+    </tr>
   )
 }
 
@@ -22,12 +23,16 @@ const Statistics = (props) => {
   return (
     <div>
       <h2>Palautteet</h2>
+      <table>
+        <tbody>
       <StatisticLine text="Hyvä" value={good} />
       <StatisticLine text="Neutraali" value={neutral} />
       <StatisticLine text="Huono" value={bad} />
       <StatisticLine text="Kaikki" value={total} />
-      <StatisticLine text="Keskiarvo" value={average} />
-      <StatisticLine text="Positiivisia" value={`${posPercentage}%`} />
+      <StatisticLine text="Keskiarvo" value={average.toFixed(1)} />
+      <StatisticLine text="Positiivisia" value={`${posPercentage.toFixed(1)}%`} />
+      </tbody>
+      </table>
     </div>
   )
 }
