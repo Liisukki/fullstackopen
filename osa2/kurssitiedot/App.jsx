@@ -12,7 +12,13 @@ const Header = (props) => {
     );
   };
   
-  
+  const Total = (props) => {
+    const totalExercises = props.course.parts.reduce(
+      (sum, part) => sum + part.exercises,
+      0
+    );
+    return <b>Number of exercises {totalExercises}</b>;
+  };
   
   const Part = (props) => {
     return (
@@ -27,6 +33,7 @@ const Header = (props) => {
       <div>
         <Header course={props.course} />
         <Content course={props.course} />
+        <Total course={props.course} />
       </div>
     );
   };
@@ -52,7 +59,7 @@ const Header = (props) => {
           id: 3
         },
         {
-          name: 'Addition',
+          name: 'Redux',
           exercises: 11,
           id: 4
         }
