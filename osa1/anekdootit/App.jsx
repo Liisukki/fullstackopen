@@ -28,13 +28,18 @@ const App = () => {
       setVotes(copy) // Päivitetään tila
     }
   
-
+    const mostVotesIndex = votes.indexOf(Math.max(...votes))
+    const mostVotesAnectode = anecdotes[mostVotesIndex]
+    
   return (
     <div>
+      <h1>Päivän anekdootti</h1>
       <p>{anecdotes[selected]}</p>
       <p>Äänet: { votes[selected] }</p>
       <button onClick={handleVote}>Äänestä</button>
       <button onClick={handleClick}>Seuraava anekdootti</button>
+      <h1>Eniten ääniä saanut anekdootti</h1>
+      <p>{mostVotesAnectode}</p>
     </div>
   )
 }
