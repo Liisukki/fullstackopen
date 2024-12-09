@@ -3,6 +3,10 @@ import { useState } from 'react'
 const Statistics = (props) => {
   const { good, neutral, bad, total, average, posPercentage } = props
 
+  if (total === 0) {
+    return <p>Ei palautetta annettu</p>
+  }
+  
   return (
     <div>
       <h2>Palautteet</h2>
