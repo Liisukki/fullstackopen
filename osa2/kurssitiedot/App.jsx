@@ -1,43 +1,48 @@
-const Header = (props) => {
-  return <h1>{props.course.name}</h1>;
+import { useState } from 'react';
+
+// Header-komponentti
+const Header = ({ course }) => {
+  return <h1>{course.name}</h1>;
 };
 
-const Content = (props) => {
+// Part-komponentti
+const Part = ({ name, exercises }) => {
+  return (
+    <p>
+      {name} {exercises}
+    </p>
+  );
+};
+
+// Content-komponentti
+const Content = ({ course }) => {
   return (
     <div>
-      {props.course.parts.map(part => (
+      {course.parts.map(part => (
         <Part key={part.id} name={part.name} exercises={part.exercises} />
       ))}
     </div>
   );
 };
 
-const Total = (props) => {
-  const totalExercises = props.course.parts.reduce(
-    (sum, part) => sum + part.exercises,
-    0
-  );
+// Total-komponentti
+const Total = ({ course }) => {
+  const totalExercises = course.parts.reduce((sum, part) => sum + part.exercises, 0);
   return <p>Number of exercises {totalExercises}</p>;
 };
 
-const Part = (props) => {
-  return (
-    <p>
-      {props.name} {props.exercises}
-    </p>
-  );
-};
-
-const Course = (props) => {
+// Course-komponentti
+const Course = ({ course }) => {
   return (
     <div>
-      <Header course={props.course} />
-      <Content course={props.course} />
-      <Total course={props.course} />
+      <Header course={course} />
+      <Content course={course} />
+      <Total course={course} />
     </div>
   );
 };
 
+// App-komponentti
 const App = () => {
   const course = {
     name: 'Half Stack application development',
