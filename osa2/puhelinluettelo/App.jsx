@@ -12,9 +12,15 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault();
+
+    // Nimen tarkistus
+    if (persons.some(person => person.name === newName)) {
+      alert(`${newName} is already added to phonebook`);
+      return;
+    }
     const newPerson = { name: newName };
     setPersons(persons.concat(newPerson));
-    setNewName('');
+    setNewName(''); 
   };
 
   return (
@@ -34,7 +40,7 @@ const App = () => {
           <li key={person.name}>{person.name}</li>
         ))}
       </ul>
-      {/* Debugging output */}
+
       <div>debug: {newName}</div>
     </div>
   );
