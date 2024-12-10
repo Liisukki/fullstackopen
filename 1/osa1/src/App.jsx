@@ -1,5 +1,41 @@
 import { useState } from 'react';
 
+const Filter = ({ filterText, handleFiltering }) => (
+  <div>
+    Filter shown with: <input value={filterText} onChange={handleFiltering} />
+  </div>
+)
+
+const PersonForm = ({
+  newName,
+  newNumber,
+  handleNameChange,
+  handleNumberChange,
+  addPerson
+}) => (
+  <form onSubmit={addPerson}>
+    <div>
+      Name: <input value={newName} onChange={handleNameChange} />
+    </div>
+    <div>
+      Number: <input value={newNumber} onChange={handleNumberChange} />
+    </div>
+    <div>
+      <button type="submit">add</button>
+    </div>
+  </form>
+)
+
+const Persons = ({ persons }) => (
+  <ul>
+    {persons.map(person => (
+      <li key={person.name}>
+        {person.name} {person.number}
+      </li>
+    ))}
+  </ul>
+)
+
 const App = () => {
   const [persons, setPersons] = useState([
     { name: 'Arto Hellas', number: '040-1231244' },
@@ -24,12 +60,11 @@ const App = () => {
   }
 
   const addPerson = (event) => {
-    event.preventDefault();
+    event.preventDefault()
 
-    // Nimen tarkistus
     if (persons.some(person => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`)
-      return
+      alert(`${newName} is already added to phonebook`);
+      return;
     }
 
     const newPerson = { name: newName, number: newNumber }
@@ -38,7 +73,6 @@ const App = () => {
     setNewNumber('')
   }
 
-  // Suodatetut henkilöt
   const personsToShow = persons.filter(person =>
     person.name.toLowerCase().includes(filterText.toLowerCase())
   )
@@ -46,31 +80,22 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
-      <div>
-        Filter shown with: <input value={filterText} onChange={handleFiltering} />
-      </div>
+
+      <Filter filterText={filterText} handleFiltering={handleFiltering} />
+
       <h2>Add a new</h2>
-      <form onSubmit={addPerson}>
-        <div>
-          Name: <input value={newName} onChange={handleNameChange} />
-        </div>
-        <div>
-          Number: <input value={newNumber} onChange={handleNumberChange} />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+
+      <PersonForm
+        newName={newName}
+        newNumber={newNumber}
+        handleNameChange={handleNameChange}
+        handleNumberChange={handleNumberChange}
+        addPerson={addPerson}
+      />
+
       <h2>Numbers</h2>
-      <ul>
-        {personsToShow.map(person => (
-          <li key={person.name}>
-            {person.name} {person.number}
-          </li>
-        ))}
-      </ul>
-      {/* Debug-tiedot */}
-      <div>debug: {newName}, {newNumber}, filter: {filterText}</div>
+
+      <Persons persons={personsToShow} />
     </div>
   )
 }
