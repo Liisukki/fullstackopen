@@ -14,7 +14,7 @@ const App = () => {
     event.preventDefault();
     const newPerson = { name: newName };
     setPersons(persons.concat(newPerson));
-    setNewName(''); // Tyhjennetään kenttä
+    setNewName('');
   };
 
   return (
