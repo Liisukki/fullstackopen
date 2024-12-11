@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import personService from './services/persons';
+import { useState, useEffect } from 'react'
+import personService from './services/persons'
 
 const Filter = ({ filterText, handleFiltering }) => (
   <div>
@@ -27,11 +27,12 @@ const PersonForm = ({
   </form>
 )
 
-const Persons = ({ persons }) => (
+const Persons = ({ persons, handleDelete }) => (
   <ul>
     {persons.map(person => (
       <li key={person.id}>
-        {person.name} {person.number}
+        {person.name} {person.number}{' '}
+        <button onClick={() => handleDelete(person.id, person.name)}>delete</button>
       </li>
     ))}
   </ul>
@@ -43,7 +44,6 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filterText, setFilterText] = useState('')
 
-  // Haetaan tiedot palvelimelta
   useEffect(() => {
     personService.getAll().then(initialPersons => {
       setPersons(initialPersons)
@@ -67,7 +67,7 @@ const App = () => {
 
     if (persons.some(person => person.name === newName)) {
       alert(`${newName} is already added to phonebook`)
-      return;
+      return
     }
 
     const newPerson = { name: newName, number: newNumber };
@@ -79,9 +79,23 @@ const App = () => {
     })
   }
 
+  const handleDelete = (id, name) => {
+    if (window.confirm(`Delete ${name}?`)) {
+      personService
+        .remove(id)
+        .then(() => {
+          setPersons(persons.filter(person => person.id !== id))
+        })
+        .catch(error => {
+          alert(`The contact '${name}' was already removed from the server.`)
+          setPersons(persons.filter(person => person.id !== id))
+        })
+    }
+  }
+
   const personsToShow = persons.filter(person =>
     person.name.toLowerCase().includes(filterText.toLowerCase())
-  );
+  )
 
   return (
     <div>
@@ -98,12 +112,10 @@ const App = () => {
         handleNumberChange={handleNumberChange}
         addPerson={addPerson}
       />
-
       <h2>Numbers</h2>
-
-      <Persons persons={personsToShow} />
+      <Persons persons={personsToShow} handleDelete={handleDelete} />
     </div>
   )
 }
 
-export default App;
+export default App
