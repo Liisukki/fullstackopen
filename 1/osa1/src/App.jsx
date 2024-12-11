@@ -1,62 +1,112 @@
-import { useState, useEffect } from 'react'
-import axios from 'axios'
-import Note from './components/Note'
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const baseUrl = 'http://localhost:3001/persons';
+
+const Filter = ({ filterText, handleFiltering }) => (
+  <div>
+    Filter shown with: <input value={filterText} onChange={handleFiltering} />
+  </div>
+);
+
+const PersonForm = ({
+  newName,
+  newNumber,
+  handleNameChange,
+  handleNumberChange,
+  addPerson,
+}) => (
+  <form onSubmit={addPerson}>
+    <div>
+      Name: <input value={newName} onChange={handleNameChange} />
+    </div>
+    <div>
+      Number: <input value={newNumber} onChange={handleNumberChange} />
+    </div>
+    <div>
+      <button type="submit">add</button>
+    </div>
+  </form>
+);
+
+const Persons = ({ persons }) => (
+  <ul>
+    {persons.map(person => (
+      <li key={person.id}>
+        {person.name} {person.number}
+      </li>
+    ))}
+  </ul>
+);
 
 const App = () => {
-  const [notes, setNotes] = useState([])
-  const [newNote, setNewNote] = useState('')
-  const [showAll, setShowAll] = useState(false)
+  const [persons, setPersons] = useState([]);
+  const [newName, setNewName] = useState('');
+  const [newNumber, setNewNumber] = useState('');
+  const [filterText, setFilterText] = useState('');
 
+  // Hae data serveriltä
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/notes')
-      .then(response => {
-        setNotes(response.data)
-      })
-  }, [])
+    axios.get(baseUrl).then(response => {
+      setPersons(response.data);
+    });
+  }, []);
 
-  const addNote = (event) => {
-    event.preventDefault()
-    const noteObject = {
-      content: newNote,
-      important: Math.random() > 0.5,
-      id: notes.length + 1,
+  const handleFiltering = event => {
+    setFilterText(event.target.value);
+  };
+
+  const handleNameChange = event => {
+    setNewName(event.target.value);
+  };
+
+  const handleNumberChange = event => {
+    setNewNumber(event.target.value);
+  };
+
+  const addPerson = event => {
+    event.preventDefault();
+
+    if (persons.some(person => person.name === newName)) {
+      alert(`${newName} is already added to phonebook`);
+      return;
     }
-  
-    setNotes(notes.concat(noteObject))
-    setNewNote('')
-  }
 
-  const handleNoteChange = (event) => {
-    setNewNote(event.target.value)
-  }
+    const newPerson = { name: newName, number: newNumber };
 
-  const notesToShow = showAll
-    ? notes
-    : notes.filter(note => note.important)
+    // Tallenna uusi yhteystieto
+    axios.post(baseUrl, newPerson).then(response => {
+      setPersons(persons.concat(response.data)); 
+      setNewName('');
+      setNewNumber('');
+    });
+  };
+
+  const personsToShow = persons.filter(person =>
+    person.name.toLowerCase().includes(filterText.toLowerCase())
+  );
 
   return (
     <div>
-      <h1>Notes</h1>
-      <div>
-        <button onClick={() => setShowAll(!showAll)}>
-          show {showAll ? 'important' : 'all' }
-        </button>
-      </div>      
-      <ul>
-        {notesToShow.map(note => 
-          <Note key={note.id} note={note} />
-        )}
-      </ul>
-      <form onSubmit={addNote}>
-      <input
-          value={newNote}
-          onChange={handleNoteChange}
-        />
-        <button type="submit">save</button>
-      </form> 
-    </div>
-  )
-}
+      <h1>Phonebook</h1>
 
-export default App
+      <Filter filterText={filterText} handleFiltering={handleFiltering} />
+
+      <h2>Add a new</h2>
+
+      <PersonForm
+        newName={newName}
+        newNumber={newNumber}
+        handleNameChange={handleNameChange}
+        handleNumberChange={handleNumberChange}
+        addPerson={addPerson}
+      />
+
+      <h2>Numbers</h2>
+
+      <Persons persons={personsToShow} />
+    </div>
+  );
+};
+
+export default App;
