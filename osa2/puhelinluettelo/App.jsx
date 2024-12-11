@@ -1,13 +1,11 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-
-const baseUrl = 'http://localhost:3001/persons';
+import { useState, useEffect } from 'react'
+import personService from './services/persons'
 
 const Filter = ({ filterText, handleFiltering }) => (
   <div>
     Filter shown with: <input value={filterText} onChange={handleFiltering} />
   </div>
-);
+)
 
 const PersonForm = ({
   newName,
@@ -27,7 +25,7 @@ const PersonForm = ({
       <button type="submit">add</button>
     </div>
   </form>
-);
+)
 
 const Persons = ({ persons }) => (
   <ul>
@@ -37,63 +35,59 @@ const Persons = ({ persons }) => (
       </li>
     ))}
   </ul>
-);
+)
 
 const App = () => {
-  const [persons, setPersons] = useState([]);
-  const [newName, setNewName] = useState('');
-  const [newNumber, setNewNumber] = useState('');
-  const [filterText, setFilterText] = useState('');
+  const [persons, setPersons] = useState([])
+  const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [filterText, setFilterText] = useState('')
 
-  // Hae data serveriltä
+  // Haetaan tiedot palvelimelta
   useEffect(() => {
-    axios.get(baseUrl).then(response => {
-      setPersons(response.data);
-    });
-  }, []);
+    personService.getAll().then(initialPersons => {
+      setPersons(initialPersons)
+    })
+  }, [])
 
   const handleFiltering = event => {
-    setFilterText(event.target.value);
-  };
+    setFilterText(event.target.value)
+  }
 
   const handleNameChange = event => {
-    setNewName(event.target.value);
-  };
+    setNewName(event.target.value)
+  }
 
   const handleNumberChange = event => {
-    setNewNumber(event.target.value);
-  };
+    setNewNumber(event.target.value)
+  }
 
   const addPerson = event => {
-    event.preventDefault();
+    event.preventDefault()
 
     if (persons.some(person => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`);
+      alert(`${newName} is already added to phonebook`)
       return;
     }
 
     const newPerson = { name: newName, number: newNumber };
 
-    // Tallenna uusi yhteystieto
-    axios.post(baseUrl, newPerson).then(response => {
-      setPersons(persons.concat(response.data)); 
-      setNewName('');
-      setNewNumber('');
-    });
-  };
+    personService.create(newPerson).then(addedPerson => {
+      setPersons(persons.concat(addedPerson))
+      setNewName('')
+      setNewNumber('')
+    })
+  }
 
   const personsToShow = persons.filter(person =>
     person.name.toLowerCase().includes(filterText.toLowerCase())
-  );
+  )
 
   return (
     <div>
       <h1>Phonebook</h1>
-
       <Filter filterText={filterText} handleFiltering={handleFiltering} />
-
       <h2>Add a new</h2>
-
       <PersonForm
         newName={newName}
         newNumber={newNumber}
@@ -101,12 +95,10 @@ const App = () => {
         handleNumberChange={handleNumberChange}
         addPerson={addPerson}
       />
-
       <h2>Numbers</h2>
-
       <Persons persons={personsToShow} />
     </div>
-  );
-};
+  )
+}
 
-export default App;
+export default App
