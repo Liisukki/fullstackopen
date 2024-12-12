@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import personService from './services/persons'
+import Notification from './components/Notification' // Tuodaan Notification-komponentti
 
 const Filter = ({ filterText, handleFiltering }) => (
   <div>
@@ -43,10 +44,11 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterText, setFilterText] = useState('')
+  const [errorMessage, setErrorMessage] = useState(null) // Alustetaan null-arvolla, jolloin ilmoitus piilossa
 
   useEffect(() => {
     personService.getAll().then(initialPersons => {
-      setPersons(initialPersons)
+      setPersons(initialPersons);
     })
   }, [])
 
@@ -65,8 +67,38 @@ const App = () => {
   const addPerson = event => {
     event.preventDefault()
 
-    if (persons.some(person => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`)
+    const existingPerson = persons.find(person => person.name === newName);
+
+    if (existingPerson) {
+      if (
+        window.confirm(
+          `${newName} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        const updatedPerson = { ...existingPerson, number: newNumber };
+
+        personService
+          .update(existingPerson.id, updatedPerson)
+          .then(returnedPerson => {
+            setPersons(
+              persons.map(person =>
+                person.id !== existingPerson.id ? person : returnedPerson
+              )
+            )
+            setNewName('')
+            setNewNumber('')
+            setErrorMessage(`Updated '${existingPerson.name}'`)
+            setTimeout(() => {
+              setErrorMessage(null);
+            }, 5000)
+          })
+          .catch(error => {
+            alert(
+              `The contact '${existingPerson.name}' was already removed from the server.`
+            )
+            setPersons(persons.filter(person => person.id !== existingPerson.id))
+          })
+      }
       return
     }
 
@@ -76,6 +108,10 @@ const App = () => {
       setPersons(persons.concat(addedPerson))
       setNewName('')
       setNewNumber('')
+      setErrorMessage(`Added '${newPerson.name}'`)
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
     })
   }
 
@@ -84,12 +120,16 @@ const App = () => {
       personService
         .remove(id)
         .then(() => {
-          setPersons(persons.filter(person => person.id !== id))
+          setPersons(persons.filter(person => person.id !== id));
+          setErrorMessage(`Deleted '${name}'`);
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 5000);
         })
         .catch(error => {
-          alert(`The contact '${name}' was already removed from the server.`)
-          setPersons(persons.filter(person => person.id !== id))
-        })
+          alert(`The contact '${name}' was already removed from the server.`);
+          setPersons(persons.filter(person => person.id !== id));
+        });
     }
   }
 
@@ -100,11 +140,9 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
-
+      <Notification message={errorMessage} />
       <Filter filterText={filterText} handleFiltering={handleFiltering} />
-
       <h2>Add a new</h2>
-
       <PersonForm
         newName={newName}
         newNumber={newNumber}
