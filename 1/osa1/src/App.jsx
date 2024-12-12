@@ -40,29 +40,29 @@ const Persons = ({ persons, handleDelete }) => (
 );
 
 const App = () => {
-  const [persons, setPersons] = useState([]);
-  const [newName, setNewName] = useState('');
-  const [newNumber, setNewNumber] = useState('');
-  const [filterText, setFilterText] = useState('');
-  const [errorMessage, setErrorMessage] = useState(null); // Alustetaan null-arvolla, jolloin ilmoitus piilossa
+  const [persons, setPersons] = useState([])
+  const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [filterText, setFilterText] = useState('')
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
     personService.getAll().then(initialPersons => {
-      setPersons(initialPersons);
-    });
-  }, []);
+      setPersons(initialPersons)
+    })
+  }, [])
 
   const handleFiltering = event => {
-    setFilterText(event.target.value);
-  };
+    setFilterText(event.target.value)
+  }
 
   const handleNameChange = event => {
-    setNewName(event.target.value);
-  };
+    setNewName(event.target.value)
+  }
 
   const handleNumberChange = event => {
-    setNewNumber(event.target.value);
-  };
+    setNewNumber(event.target.value)
+  }
 
   const addPerson = event => {
     event.preventDefault();
@@ -70,6 +70,7 @@ const App = () => {
     const existingPerson = persons.find(person => person.name === newName);
 
     if (existingPerson) {
+      // Jos nimi löytyy jo, kysytään vahvistus numeron päivittämisestä
       if (
         window.confirm(
           `${newName} is already added to phonebook, replace the old number with a new one?`
@@ -87,28 +88,29 @@ const App = () => {
             );
             setNewName('');
             setNewNumber('');
-            setErrorMessage(`Updated '${existingPerson.name}'`);
+            setErrorMessage(`${newName}'s number was updated successfully.`);
             setTimeout(() => {
               setErrorMessage(null);
             }, 5000);
           })
           .catch(error => {
-            alert(
-              `The contact '${existingPerson.name}' was already removed from the server.`
-            );
-            setPersons(persons.filter(person => person.id !== existingPerson.id));
+            setErrorMessage(`Failed to update ${existingPerson.name}. The contact may have been removed from the server.`);
+            setTimeout(() => {
+              setErrorMessage(null);
+            }, 5000);
           });
       }
       return;
     }
 
+    // Jos henkilö ei ole luettelossa, lisätään uusi
     const newPerson = { name: newName, number: newNumber };
 
     personService.create(newPerson).then(addedPerson => {
       setPersons(persons.concat(addedPerson));
       setNewName('');
       setNewNumber('');
-      setErrorMessage(`Added '${newPerson.name}'`);
+      setErrorMessage(`${newName} was added successfully.`);
       setTimeout(() => {
         setErrorMessage(null);
       }, 5000);
@@ -120,22 +122,24 @@ const App = () => {
       personService
         .remove(id)
         .then(() => {
-          setPersons(persons.filter(person => person.id !== id));
-          setErrorMessage(`Deleted '${name}'`);
+          setPersons(persons.filter(person => person.id !== id))
+          setErrorMessage(`${name} was deleted successfully.`);
           setTimeout(() => {
             setErrorMessage(null);
           }, 5000);
         })
         .catch(error => {
-          alert(`The contact '${name}' was already removed from the server.`);
-          setPersons(persons.filter(person => person.id !== id));
-        });
+          setErrorMessage(`The contact '${name}' was already removed from the server.`);
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 5000);
+        })
     }
-  };
+  }
 
   const personsToShow = persons.filter(person =>
     person.name.toLowerCase().includes(filterText.toLowerCase())
-  );
+  )
 
   return (
     <div>
@@ -153,7 +157,7 @@ const App = () => {
       <h2>Numbers</h2>
       <Persons persons={personsToShow} handleDelete={handleDelete} />
     </div>
-  );
-};
+  )
+}
 
 export default App;
